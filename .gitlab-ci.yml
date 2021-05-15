@@ -1,4 +1,9 @@
 stages:
-  - test
-test:
-  script: echo "test!"
+  - build
+
+build:
+  image: go:1.16
+  stage: build
+  script:
+    - echo "Try build project"
+    - make build
