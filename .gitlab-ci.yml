@@ -2,6 +2,7 @@ stages:
   - checks
   - build
   - test
+  - deploy
 
 linters:
   image: golangci/golangci-lint:latest
@@ -21,3 +22,30 @@ test:
   stage: test
   script:
     - make test
+
+.prepare_ssh:
+  before_script:
+    - 'command -v ssh-agent > /dev/null || (apt-get update -y && apt-get install openssh-client -y)'
+    - eval $(ssh-agent -s)
+    - cat $SERVER_PRIVATE_KEY | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan -t rsa 5.188.142.225 >> ~/.ssh/known_hosts
+    - docker login --username nikita1996 --password $DOCKER_TOKEN
+
+deploy:
+  stage: deploy
+  variables:
+    DOCKER_TLS_CERTDIR: ''
+  extends: .prepare_ssh
+  image: docker
+  services:
+    - docker:dind
+  script:
+    - docker build nikita1996/ci_cd_homework:latest
+    - docker push nikita1996/ci_cd_homework:latest
+    - ssh ubuntu@5.188.142.225 'docker stop my_app || echo 1'
+    - ssh ubuntu@5.188.142.225 'docker rm my_app || echo 1'
+    - ssh ubuntu@5.188.142.225 'docker run --rm -d -p 8080:8080 --name=my_app nikita1996/ci_cd_homework:latest'
+  only:
+    - master
