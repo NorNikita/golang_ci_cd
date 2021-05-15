@@ -2,7 +2,7 @@ stages:
   - build
 
 build:
-  image: golang:1.16
+  image: golang:1.14.0
   stage: build
   script:
     - echo "Try build project"
