@@ -10,7 +10,14 @@ func main() {
 
 	http.HandleFunc("/test", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("get request")
-		w.Write([]byte("Hello!"))
+		_, err := w.Write([]byte("Hello!"))
+		if err != nil {
+			fmt.Println(err)
+		}
 	})
-	http.ListenAndServe(":8080", nil)
+
+	err := http.ListenAndServe(":8080", nil)
+	if err != nil {
+		fmt.Println(err)
+	}
 }

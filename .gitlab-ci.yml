@@ -1,5 +1,13 @@
 stages:
+  - checks
   - build
+  - test
+
+linters:
+  image: golangci/golangci-lint:latest
+  stage: checks
+  script:
+    - make lint
 
 build:
   image: golang:1.14.0
@@ -7,3 +15,9 @@ build:
   script:
     - echo "Try build project"
     - make build
+
+test:
+  image: golang:1.14.0
+  stage: test
+  script:
+    - make test
