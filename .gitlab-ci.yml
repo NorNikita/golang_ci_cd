@@ -25,7 +25,7 @@ test:
 
 .prepare_ssh:
   before_script:
-    - 'command -v ssh-agent > /dev/null || (apt-get update -y && apt-get install openssh-client -y)'
+    - 'command -v ssh-agent >/dev/null || ( apt-get update -y && apt-get install openssh-client -y )'
     - eval $(ssh-agent -s)
     - cat $SSH_PRIVATE_KEY | tr -d '\r' | ssh-add -
     - mkdir -p ~/.ssh
