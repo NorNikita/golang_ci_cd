@@ -1,7 +1,6 @@
-.PHONY: lint
-lint:
-	golangci-lint run -v ./code/...
-
+#.PHONY: lint
+#lint:
+#	golangci-lint run -v ./code/...
 .PHONY: build
 build:
 	go build -o ./bin/app ./code

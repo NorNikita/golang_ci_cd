@@ -1,13 +1,13 @@
 stages:
-  - checks
+#  - checks
   - build
   - test
 
-linters:
-  image: golangci/golangci-lint:latest
-  stage: checks
-  script:
-    - make lint
+#linters:
+#  image: golangci/golangci-lint:latest
+#  stage: checks
+#  script:
+#    - make lint
 
 build:
   image: golang:1.14.0
