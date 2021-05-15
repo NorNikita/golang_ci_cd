@@ -30,7 +30,6 @@ test:
     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
     - chmod 700 ~/.ssh/id_rsa
     - eval $(ssh-agent -s)
-    - cat ~/.ssh/id_rsa
     - ssh-add ~/.ssh/id_rsa
     - ssh-keyscan -t rsa 5.188.142.225 >> ~/.ssh/known_hosts
     - docker login --username nikita1996 --password $DOCKER_TOKEN
@@ -44,7 +43,7 @@ deploy:
     - docker:dind
   stage: deploy
   script:
-    - docker build nikita1996/ci_cd_homework:latest
+    - docker build nikita1996/ci_cd_homework:latest .
     - docker push nikita1996/ci_cd_homework:latest
     - ssh ubuntu@5.188.142.225 'docker stop my_app || echo 1'
     - ssh ubuntu@5.188.142.225 'docker rm my_app || echo 1'
