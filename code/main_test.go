@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
-	"io"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -103,7 +103,7 @@ func TestCreateNote(t *testing.T) {
 
 func getSuccessResponseBody(w *httptest.ResponseRecorder) Note {
 	note := &Note{}
-	all, _ := io.ReadAll(w.Body)
+	all, _ := ioutil.ReadAll(w.Body)
 	err := json.Unmarshal(all, note)
 	if err != nil {
 		fmt.Println(err)
@@ -113,7 +113,7 @@ func getSuccessResponseBody(w *httptest.ResponseRecorder) Note {
 
 func getErrorResponseMessage(w *httptest.ResponseRecorder) string {
 	res := new(testErrorResponse)
-	all, _ := io.ReadAll(w.Body)
+	all, _ := ioutil.ReadAll(w.Body)
 	err := json.Unmarshal(all, res)
 	if err != nil {
 		fmt.Println(err)

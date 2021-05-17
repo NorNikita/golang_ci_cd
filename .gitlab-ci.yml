@@ -11,14 +11,14 @@ linters:
     - make lint
 
 build:
-  image: golang:1.16.0
+  image: golang:1.14.0
   stage: build
   script:
     - echo "Try build project"
     - make build
 
 test:
-  image: golang:1.16.0
+  image: golang:1.14.0
   stage: test
   script:
     - make test

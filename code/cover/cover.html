@@ -200,18 +200,22 @@ func (r *NoteRepository) GetListNote(order string) []Note <span class="cov0" tit
 func sortNoteBy(tasks []Note, order string) []Note <span class="cov0" title="0">{
         sort.Slice(tasks, func(i, j int) bool </span><span class="cov0" title="0">{
                 switch order </span>{
-                case "text":<span class="cov0" title="0"> </span><span class="cov0" title="0">{
-                        return strings.Compare(tasks[i].Text, tasks[j].Text) != 1
-                }</span>
-                case "create_at":<span class="cov0" title="0"> </span><span class="cov0" title="0">{
-                        return strings.Compare(tasks[i].CreateAt, tasks[j].CreateAt) != 1
-                }</span>
-                case "update_at":<span class="cov0" title="0"> </span><span class="cov0" title="0">{
-                        return strings.Compare(tasks[i].UpdateAt, tasks[j].UpdateAt) != 1
-                }</span>
-                default:<span class="cov0" title="0"> </span><span class="cov0" title="0">{
-                        return tasks[i].ID &lt; tasks[j].ID
-                }</span>
+                case "text":<span class="cov0" title="0">
+                        </span><span class="cov0" title="0">{
+                                return strings.Compare(tasks[i].Text, tasks[j].Text) != 1
+                        }</span>
+                case "create_at":<span class="cov0" title="0">
+                        </span><span class="cov0" title="0">{
+                                return strings.Compare(tasks[i].CreateAt, tasks[j].CreateAt) != 1
+                        }</span>
+                case "update_at":<span class="cov0" title="0">
+                        </span><span class="cov0" title="0">{
+                                return strings.Compare(tasks[i].UpdateAt, tasks[j].UpdateAt) != 1
+                        }</span>
+                default:<span class="cov0" title="0">
+                        </span><span class="cov0" title="0">{
+                                return tasks[i].ID &lt; tasks[j].ID
+                        }</span>
                 }
         })
         <span class="cov0" title="0">return tasks</span>
@@ -224,7 +228,7 @@ import (
         "encoding/json"
         "fmt"
         "github.com/gorilla/mux"
-        "io"
+        "io/ioutil"
         "net/http"
         "strconv"
 )
@@ -251,7 +255,7 @@ func (s *NoteHandler) GetNote(w http.ResponseWriter, r *http.Request) <span clas
 }
 
 func (s *NoteHandler) CreateNote(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
-        bodyNote, err := io.ReadAll(r.Body)
+        bodyNote, err := ioutil.ReadAll(r.Body)
         if err != nil </span><span class="cov0" title="0">{
                 jsonError(w, http.StatusInternalServerError, err.Error())
                 return
@@ -272,12 +276,12 @@ func (s *NoteHandler) CreateNote(w http.ResponseWriter, r *http.Request) <span c
 
 func (s *NoteHandler) UpdateNote(w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
         id, err := strconv.Atoi(mux.Vars(r)["id"])
-        if err!= nil </span><span class="cov0" title="0">{
+        if err != nil </span><span class="cov0" title="0">{
                 jsonError(w, http.StatusInternalServerError, err.Error())
                 return
         }</span>
 
-        <span class="cov0" title="0">byteNote, err := io.ReadAll(r.Body)
+        <span class="cov0" title="0">byteNote, err := ioutil.ReadAll(r.Body)
         if err != nil </span><span class="cov0" title="0">{
                 jsonError(w, http.StatusInternalServerError, err.Error())
                 return
@@ -296,7 +300,7 @@ func (s *NoteHandler) UpdateNote(w http.ResponseWriter, r *http.Request) <span c
 
 func (s *NoteHandler) DeleteNote(w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
         id, err := strconv.Atoi(mux.Vars(r)["id"])
-        if err!= nil </span><span class="cov0" title="0">{
+        if err != nil </span><span class="cov0" title="0">{
                 jsonError(w, http.StatusInternalServerError, err.Error())
                 return
         }</span>
@@ -338,7 +342,8 @@ func jsonError(w http.ResponseWriter, status int, msg string) <span class="cov8"
 func successJson(w http.ResponseWriter, status int, body []byte) <span class="cov8" title="1">{
         w.WriteHeader(status)
         _, _ = w.Write(body)
-}</pre>
+}</span>
+</pre>
 		
 		</div>
 	</body>

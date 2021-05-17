@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
-	"io"
+	"io/ioutil"
 	"net/http"
 	"strconv"
 )
@@ -31,7 +31,7 @@ func (s *NoteHandler) GetNote(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *NoteHandler) CreateNote(w http.ResponseWriter, r *http.Request) {
-	bodyNote, err := io.ReadAll(r.Body)
+	bodyNote, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		jsonError(w, http.StatusInternalServerError, err.Error())
 		return
@@ -57,7 +57,7 @@ func (s *NoteHandler) UpdateNote(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	byteNote, err := io.ReadAll(r.Body)
+	byteNote, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		jsonError(w, http.StatusInternalServerError, err.Error())
 		return
