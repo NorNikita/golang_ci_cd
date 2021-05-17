@@ -2,21 +2,34 @@ package main
 
 import (
 	"fmt"
+	"github.com/gorilla/mux"
 	"net/http"
 )
 
+type Note struct {
+	ID       int64  `json:"id"`
+	Text     string `json:"text"`
+	CreateAt string `json:"create_at"`
+	UpdateAt string `json:"update_at"`
+}
+
 func main() {
-	fmt.Println("kek check cheburek")
+	r := &NoteRepository{
+		notes: make(map[int64]*Note),
+	}
 
-	http.HandleFunc("/test", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("get request")
-		_, err := w.Write([]byte("Hello!"))
-		if err != nil {
-			fmt.Println(err)
-		}
-	})
+	handler := &NoteHandler{
+		repo: r,
+	}
 
-	err := http.ListenAndServe(":8080", nil)
+	router := mux.NewRouter()
+	router.HandleFunc("/note/{id}", handler.GetNote).Methods("GET")
+	router.HandleFunc("/note", handler.CreateNote).Methods("POST")
+	router.HandleFunc("/note/{id}", handler.UpdateNote).Methods("PUT")
+	router.HandleFunc("/note/{id}", handler.DeleteNote).Methods("DELETE")
+	router.HandleFunc("/note", handler.GetAll).Methods("GET")
+
+	err := http.ListenAndServe(":8080", router)
 	if err != nil {
 		fmt.Println(err)
 	}

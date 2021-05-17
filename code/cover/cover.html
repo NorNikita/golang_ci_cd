@@ -1,0 +1,372 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>code: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">code/code/main.go (0.0%)</option>
+				
+				<option value="file1">code/code/repository.go (34.9%)</option>
+				
+				<option value="file2">code/code/service.go (36.7%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package main
+
+import (
+        "fmt"
+        "github.com/gorilla/mux"
+        "net/http"
+)
+
+type Note struct {
+        ID       int64  `json:"id"`
+        Text     string `json:"text"`
+        CreateAt string `json:"create_at"`
+        UpdateAt string `json:"update_at"`
+}
+
+func main() <span class="cov0" title="0">{
+        r := &amp;NoteRepository{
+                notes: make(map[int64]*Note),
+        }
+
+        handler := &amp;NoteHandler{
+                repo: r,
+        }
+
+        router := mux.NewRouter()
+        router.HandleFunc("/note/{id}", handler.GetNote).Methods("GET")
+        router.HandleFunc("/note", handler.CreateNote).Methods("POST")
+        router.HandleFunc("/note/{id}", handler.UpdateNote).Methods("PUT")
+        router.HandleFunc("/note/{id}", handler.DeleteNote).Methods("DELETE")
+        router.HandleFunc("/note", handler.GetAll).Methods("GET")
+
+        err := http.ListenAndServe(":8080", router)
+        if err != nil </span><span class="cov0" title="0">{
+                fmt.Println(err)
+        }</span>
+}
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package main
+
+import (
+        "errors"
+        "sort"
+        "strings"
+        "sync"
+        "sync/atomic"
+        "time"
+)
+
+type INoteRepository interface {
+        GetNoteById(int64) (*Note, error)
+        CreateNote(*Note) *Note
+        UpdateNoteById(int64, *Note)
+        DeleteNoteById(int64) error
+        GetListNote(string) []Note
+}
+
+type NoteRepository struct {
+        sync.RWMutex
+        notes map[int64]*Note
+}
+
+var (
+        noteId          int64 = 0
+        autoincrementId       = func() int64 <span class="cov8" title="1">{
+                atomic.AddInt64(&amp;noteId, 1)
+                return noteId
+        }</span>
+)
+
+func (r *NoteRepository) GetNoteById(id int64) (*Note, error) <span class="cov8" title="1">{
+        r.RLock()
+        note, ok := r.notes[id]
+        if !ok </span><span class="cov8" title="1">{
+                return nil, errors.New("note does not exist!")
+        }</span>
+        <span class="cov8" title="1">r.RUnlock()
+        return note, nil</span>
+}
+
+func (r *NoteRepository) CreateNote(newNote *Note) *Note <span class="cov8" title="1">{
+        r.Lock()
+        defer r.Unlock()
+
+        id := autoincrementId()
+        newNote.ID = id
+        newNote.CreateAt = time.Now().Format("2006-01-02 15:04:05")
+        r.notes[id] = newNote
+
+        return newNote
+}</span>
+
+func (r *NoteRepository) UpdateNoteById(id int64, updatedNote *Note) <span class="cov0" title="0">{
+        r.Lock()
+        defer r.Unlock()
+
+        old := r.notes[id]
+        old.Text = updatedNote.Text
+        old.UpdateAt = time.Now().Format("2006-01-02 15:04:05")
+        r.notes[id] = old
+}</span>
+
+func (r *NoteRepository) DeleteNoteById(id int64) error <span class="cov0" title="0">{
+        r.Lock()
+        _, ok := r.notes[id]
+        if !ok </span><span class="cov0" title="0">{
+                return errors.New("notes doest not exist")
+        }</span>
+        <span class="cov0" title="0">delete(r.notes, id)
+        r.Unlock()
+
+        return nil</span>
+}
+
+func (r *NoteRepository) GetListNote(order string) []Note <span class="cov0" title="0">{
+        var result []Note
+
+        for _, v := range r.notes </span><span class="cov0" title="0">{
+                result = append(result, *v)
+        }</span>
+
+        <span class="cov0" title="0">return sortNoteBy(result, order)</span>
+}
+
+func sortNoteBy(tasks []Note, order string) []Note <span class="cov0" title="0">{
+        sort.Slice(tasks, func(i, j int) bool </span><span class="cov0" title="0">{
+                switch order </span>{
+                case "text":<span class="cov0" title="0"> </span><span class="cov0" title="0">{
+                        return strings.Compare(tasks[i].Text, tasks[j].Text) != 1
+                }</span>
+                case "create_at":<span class="cov0" title="0"> </span><span class="cov0" title="0">{
+                        return strings.Compare(tasks[i].CreateAt, tasks[j].CreateAt) != 1
+                }</span>
+                case "update_at":<span class="cov0" title="0"> </span><span class="cov0" title="0">{
+                        return strings.Compare(tasks[i].UpdateAt, tasks[j].UpdateAt) != 1
+                }</span>
+                default:<span class="cov0" title="0"> </span><span class="cov0" title="0">{
+                        return tasks[i].ID &lt; tasks[j].ID
+                }</span>
+                }
+        })
+        <span class="cov0" title="0">return tasks</span>
+}
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package main
+
+import (
+        "encoding/json"
+        "fmt"
+        "github.com/gorilla/mux"
+        "io"
+        "net/http"
+        "strconv"
+)
+
+type NoteHandler struct {
+        repo INoteRepository
+}
+
+func (s *NoteHandler) GetNote(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        id, err := strconv.Atoi(mux.Vars(r)["id"])
+        if err != nil </span><span class="cov0" title="0">{
+                jsonError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+
+        <span class="cov8" title="1">note, errNote := s.repo.GetNoteById(int64(id))
+        if errNote != nil </span><span class="cov8" title="1">{
+                jsonError(w, http.StatusNotFound, errNote.Error())
+                return
+        }</span>
+
+        <span class="cov8" title="1">body, _ := json.Marshal(note)
+        successJson(w, http.StatusOK, body)</span>
+}
+
+func (s *NoteHandler) CreateNote(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        bodyNote, err := io.ReadAll(r.Body)
+        if err != nil </span><span class="cov0" title="0">{
+                jsonError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+
+        <span class="cov8" title="1">newNote := new(Note)
+        errUnmarshal := json.Unmarshal(bodyNote, newNote)
+        if errUnmarshal != nil </span><span class="cov0" title="0">{
+                jsonError(w, http.StatusInternalServerError, errUnmarshal.Error())
+                return
+        }</span>
+
+        <span class="cov8" title="1">note := s.repo.CreateNote(newNote)
+
+        body, _ := json.Marshal(note)
+        successJson(w, http.StatusCreated, body)</span>
+}
+
+func (s *NoteHandler) UpdateNote(w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
+        id, err := strconv.Atoi(mux.Vars(r)["id"])
+        if err!= nil </span><span class="cov0" title="0">{
+                jsonError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+
+        <span class="cov0" title="0">byteNote, err := io.ReadAll(r.Body)
+        if err != nil </span><span class="cov0" title="0">{
+                jsonError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+
+        <span class="cov0" title="0">updated := new(Note)
+        errUnmarshal := json.Unmarshal(byteNote, updated)
+        if errUnmarshal != nil </span><span class="cov0" title="0">{
+                jsonError(w, http.StatusInternalServerError, errUnmarshal.Error())
+                return
+        }</span>
+
+        <span class="cov0" title="0">s.repo.UpdateNoteById(int64(id), updated)
+        w.WriteHeader(http.StatusAccepted)</span>
+}
+
+func (s *NoteHandler) DeleteNote(w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
+        id, err := strconv.Atoi(mux.Vars(r)["id"])
+        if err!= nil </span><span class="cov0" title="0">{
+                jsonError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+
+        <span class="cov0" title="0">errDelete := s.repo.DeleteNoteById(int64(id))
+        if errDelete != nil </span><span class="cov0" title="0">{
+                jsonError(w, http.StatusInternalServerError, errDelete.Error())
+                return
+        }</span>
+
+        <span class="cov0" title="0">w.WriteHeader(http.StatusOK)</span>
+}
+
+func (s *NoteHandler) GetAll(w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
+        order := r.URL.Query()["order_by"][0]
+
+        notes := s.repo.GetListNote(order)
+
+        marshalNotes, err := json.Marshal(notes)
+        if err != nil </span><span class="cov0" title="0">{
+                jsonError(w, http.StatusInternalServerError, err.Error())
+                return
+        }</span>
+        <span class="cov0" title="0">successJson(w, http.StatusOK, marshalNotes)</span>
+}
+
+func jsonError(w http.ResponseWriter, status int, msg string) <span class="cov8" title="1">{
+        resp, _ := json.Marshal(map[string]interface{}{
+                "message": msg,
+        })
+        w.WriteHeader(status)
+
+        _, err := w.Write(resp)
+        if err != nil </span><span class="cov0" title="0">{
+                fmt.Println(err)
+        }</span>
+}
+
+func successJson(w http.ResponseWriter, status int, body []byte) <span class="cov8" title="1">{
+        w.WriteHeader(status)
+        _, _ = w.Write(body)
+}</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>
