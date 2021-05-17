@@ -9,8 +9,8 @@ import (
 type Note struct {
 	ID       int64  `json:"id"`
 	Text     string `json:"text"`
-	CreateAt string `json:"create_at"`
-	UpdateAt string `json:"update_at"`
+	CreateAt string `json:"createAt"`
+	UpdateAt string `json:"updateAt"`
 }
 
 func main() {

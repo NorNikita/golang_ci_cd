@@ -75,7 +75,7 @@ func (r *NoteRepository) DeleteNoteById(id int64) error {
 }
 
 func (r *NoteRepository) GetListNote(order string) []Note {
-	var result []Note
+	result := make([]Note, 0)
 
 	for _, v := range r.notes {
 		result = append(result, *v)
@@ -88,21 +88,13 @@ func sortNoteBy(tasks []Note, order string) []Note {
 	sort.Slice(tasks, func(i, j int) bool {
 		switch order {
 		case "text":
-			{
-				return strings.Compare(tasks[i].Text, tasks[j].Text) != 1
-			}
+			return strings.Compare(tasks[i].Text, tasks[j].Text) != 1
 		case "create_at":
-			{
-				return strings.Compare(tasks[i].CreateAt, tasks[j].CreateAt) != 1
-			}
+			return strings.Compare(tasks[i].CreateAt, tasks[j].CreateAt) != 1
 		case "update_at":
-			{
-				return strings.Compare(tasks[i].UpdateAt, tasks[j].UpdateAt) != 1
-			}
+			return strings.Compare(tasks[i].UpdateAt, tasks[j].UpdateAt) != 1
 		default:
-			{
-				return tasks[i].ID < tasks[j].ID
-			}
+			return tasks[i].ID < tasks[j].ID
 		}
 	})
 	return tasks
