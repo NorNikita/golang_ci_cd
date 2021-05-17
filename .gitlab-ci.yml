@@ -11,7 +11,7 @@ linters:
     - make lint
 
 build:
-  image: golang:1.14.0
+  image: golang:1.16.0
   stage: build
   script:
     - echo "Try build project"
