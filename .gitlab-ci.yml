@@ -46,7 +46,7 @@ deploy:
     - docker build -t nikita1996/ci_cd_homework:latest .
     - docker push nikita1996/ci_cd_homework:latest
     - ssh ubuntu@5.188.142.225 'sudo docker stop my_app || echo 1'
-    - ssh ubuntu@5.188.142.225 'sudo docker rm my_app || echo 1'
+    - ssh ubuntu@5.188.142.225 'sudo docker rmi $(sudo docker images -q) || echo 1'
     - ssh ubuntu@5.188.142.225 'sudo docker run --rm -d -p 8080:8080 --name=my_app nikita1996/ci_cd_homework:latest'
   only:
     - master
